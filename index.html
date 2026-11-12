@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#1a5a8e">
+  <title>Petualangan Bima & Lala — Komik Flipbook Interaktif</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- SPLASH / LOADING SCREEN -->
+  <div id="splash" class="splash">
+    <div class="splash-inner">
+      <div class="splash-icon">📚</div>
+      <h1 class="splash-title">Petualangan<br><span>Bima & Lala</span></h1>
+      <p class="splash-sub">Komik Flipbook Interaktif Berhitung</p>
+      <div class="splash-loader"><div class="splash-bar"></div></div>
+      <p class="splash-hint">Membuka buku komik...</p>
+    </div>
+  </div>
+
+  <!-- MAIN APP WRAPPER -->
+  <div id="app" class="app hidden">
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <div class="brand-logo">
+          <span class="brand-icon">📖</span>
+          <div class="brand-text">
+            <strong>Petualangan Bima & Lala</strong>
+            <small>Media Pembelajaran Literasi & Numerasi • Kelas 4 SD</small>
+          </div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button id="musicBtn" class="tool-btn" type="button" title="Musik Latar (Aktif/Mati)">
+          <span id="musicIcon">🎵</span>
+          <span class="tool-label">Musik</span>
+        </button>
+        <button id="soundBtn" class="tool-btn" type="button" title="Suara Efek (Aktif/Mati)">
+          <span id="soundIcon">🔊</span>
+          <span class="tool-label">Efek</span>
+        </button>
+        <button id="fullscreenBtn" class="tool-btn" type="button" title="Layar Penuh">
+          <span id="fullscreenIcon">⛶</span>
+          <span class="tool-label">Layar Penuh</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- BOOK STAGE (CENTRAL VIEWPORT WITH LEFT & RIGHT ARROWS) -->
+    <main class="book-stage">
+
+      <!-- LEFT NAVIGATION ARROW (SEBELUMNYA) -->
+      <button id="prevBtn" class="nav-arrow nav-arrow-left" type="button" aria-label="Halaman Sebelumnya" title="Halaman Sebelumnya (Panah Kiri)">
+        <span class="arrow-circle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 19 8 12 15 5"></polyline>
+          </svg>
+        </span>
+        <span class="arrow-caption">Sebelumnya</span>
+      </button>
+
+      <!-- REALISTIC FLIPBOOK (3D PAGE TURN) -->
+      <div class="book-wrap">
+        <div class="flipbook" id="bookContainer">
+          <div class="fb-spine"><i></i><i></i><i></i></div>
+          <div class="fb-sheets" id="fbSheets">
+            <div class="fb-stack" id="fbStack"></div>
+            <div class="fb-cast-wrap"><div class="fb-cast" id="fbCast"></div></div>
+          </div>
+          <span class="fb-ribbon"></span>
+          <div class="fb-shadow"></div>
+        </div>
+        <div class="fb-caption">
+          <span class="page-tag" id="pageChapter">Sampul Depan</span>
+          <span class="page-counter" id="pageCounterBadge">Hal. 1 / 15</span>
+        </div>
+      </div>
+
+      <!-- RIGHT NAVIGATION ARROW (SELANJUTNYA) -->
+      <button id="nextBtn" class="nav-arrow nav-arrow-right" type="button" aria-label="Halaman Selanjutnya" title="Halaman Selanjutnya (Panah Kanan)">
+        <span class="arrow-circle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 5 16 12 9 19"></polyline>
+          </svg>
+        </span>
+        <span class="arrow-caption">Selanjutnya</span>
+      </button>
+
+    </main>
+
+    <!-- HINT BANNER -->
+    <div class="hint-banner" id="hintBanner">
+      <span class="hint-icon">💡</span>
+      <span class="hint-text" id="hintText">Tip: Kamu bisa menekan langsung opsi jawaban di dalam gambar komik!</span>
+    </div>
+
+    <!-- BOTTOM PROGRESS & THUMBNAILS BAR -->
+    <div class="bottom-controls">
+      <div class="progress-wrap">
+        <span class="progress-label" id="progressLabel">Halaman 1 dari 15</span>
+        <div class="progress-track">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+      </div>
+
+      <!-- THUMBNAIL STRIP -->
+      <div class="thumbnail-strip" id="thumbnailStrip">
+        <!-- Rendered by JS -->
+      </div>
+    </div>
+
+    <!-- EXPLANATION MODAL FOR WRONG ANSWER (CARA PENGERJAAN TANPA MEMBOCORKAN JAWABAN) -->
+    <div id="explanationOverlay" class="explanation-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="explanationTitle">
+      <div class="explanation-modal">
+        <div class="explanation-header">
+          <div class="explanation-icon">💡</div>
+          <div class="explanation-header-text">
+            <h3 id="explanationTitle" class="explanation-title">Yuk, Simak Cara Mengerjakannya!</h3>
+            <span class="explanation-subtitle">Jangan menyerah, kamu pasti bisa!</span>
+          </div>
+          <button id="explanationCloseIcon" class="modal-close-icon" type="button" aria-label="Tutup Panduan">&times;</button>
+        </div>
+        <div class="explanation-body">
+          <div class="explanation-bubble" id="explanationText">
+            <!-- Step-by-step guidance inserted by JS -->
+          </div>
+          <div class="explanation-tip">
+            <span>✨</span> <em>Ikuti langkah-langkah di atas perlahan, lalu coba pilih kembali jawabanmu langsung pada gambar komik!</em>
+          </div>
+        </div>
+        <div class="explanation-footer">
+          <button id="explanationClose" class="btn-try-again" type="button">
+            <span>🔄</span> Saya Mau Coba Lagi!
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION FOR QUIZ FEEDBACK -->
+    <div id="toastNotification" class="toast-notification hidden" role="status" aria-live="polite">
+      <div class="toast-icon" id="toastIcon">🎉</div>
+      <div class="toast-content">
+        <div class="toast-title" id="toastTitle">Jawaban Benar!</div>
+        <div class="toast-msg" id="toastMsg">Hebat sekali, jawabanmu tepat!</div>
+      </div>
+    </div>
+
+    <footer class="app-footer">
+      Media Pembelajaran Interaktif Siswa Kelas 4 SD · Mengasah Literasi & Numerasi dengan Menyenangkan
+    </footer>
+
+    <audio id="bgmAudio" loop preload="none"></audio>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
